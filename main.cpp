@@ -25,7 +25,7 @@
 #include "events/EventQueue.h"
 
 // Application helpers
-#include "DummySensor.h"
+#include "PirSensor.h"
 #include "trace_helper.h"
 #include "lora_radio_helper.h"
 
@@ -58,8 +58,9 @@ uint8_t rx_buffer[LORAMAC_PHY_MAXPAYLOAD];
 
 /**
  * Dummy sensor class object
- */
-DS1820  ds1820(PC_9);
+ 
+    DS1820  ds1820(PC_9);
+*/
 
 /**
 * This event queue is the global event queue for both the
@@ -154,20 +155,12 @@ static void send_message()
 {
     uint16_t packet_len;
     int16_t retcode;
-    float sensor_value;
 
-    if (ds1820.begin()) {
-        ds1820.startConversion();
-        sensor_value = ds1820.read();
-        printf("\r\n Dummy Sensor Value = %3.1f \r\n", sensor_value);
-        ds1820.startConversion();
-    } else {
-        printf("\r\n No sensor found \r\n");
-        return;
-    }
+    PirSensor churchentrance;
 
-    packet_len = sprintf((char*) tx_buffer, "Dummy Sensor Value is %3.1f",
-                    sensor_value);
+    packet_len = 1;
+    tx_buffer[0] = churchentrance.get_motion();
+
 
     retcode = lorawan.send(MBED_CONF_LORA_APP_PORT, tx_buffer, packet_len,
                            MSG_CONFIRMED_FLAG);
