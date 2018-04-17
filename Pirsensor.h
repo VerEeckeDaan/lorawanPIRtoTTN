@@ -2,6 +2,8 @@
 
 class PirSensor{
 public:
+
     int get_motion(void);
+
 };
 
