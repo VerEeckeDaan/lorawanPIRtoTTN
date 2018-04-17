@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 #include <stdio.h>
+#include <mbed.h>
 
 #if MBED_CONF_APP_LORAWAN_ENABLED
 
@@ -25,7 +26,7 @@
 #include "events/EventQueue.h"
 
 // Application helpers
-#include "PirSensor.h"
+#include "motion.h"
 #include "trace_helper.h"
 #include "lora_radio_helper.h"
 
@@ -33,6 +34,12 @@ using namespace events;
 
 uint8_t tx_buffer[LORAMAC_PHY_MAXPAYLOAD];
 uint8_t rx_buffer[LORAMAC_PHY_MAXPAYLOAD];
+
+// output lights
+DigitalOut light(D8);
+
+// motion class
+Motion motion (D4);
 
 /*
  * Sets up an application dependent transmission timer in ms. Used only when Duty Cycling is off for testing
@@ -89,6 +96,7 @@ static LoRaWANInterface lorawan(radio);
  */
 static lorawan_app_callbacks_t callbacks;
 
+
 /**
  * Entry point for application
  */
@@ -144,9 +152,9 @@ int main (void)
     // make your event queue dispatching events forever
     ev_queue.dispatch_forever();
 
+
     return 0;
 }
-
 
 /**
  * Sends a message to the Network Server
@@ -155,12 +163,25 @@ static void send_message()
 {
     uint16_t packet_len;
     int16_t retcode;
+    int monument_id = 0;
+    int time_on = 0;
 
-    PirSensor churchentrance;
+    packet_len = 3;
 
-    packet_len = 1;
-    tx_buffer[0] = churchentrance.get_motion();
+    int motionstate = motion.read();
+    if(motionstate == true){
+        tx_buffer[0] = 0xFF; 
+    }else{
+        tx_buffer[0] = 0x00; 
+    };
 
+    srand(time(NULL));
+    monument_id = rand() %21;
+    time_on = rand() %61;
+                                                          
+    tx_buffer[1] = monument_id;
+    tx_buffer[2] = time_on;
+    
 
     retcode = lorawan.send(MBED_CONF_LORA_APP_PORT, tx_buffer, packet_len,
                            MSG_CONFIRMED_FLAG);
