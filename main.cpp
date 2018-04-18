@@ -174,7 +174,7 @@ static void send_message()
     };
 
     srand(time(NULL));
-    monument_id = rand() %8;
+    monument_id = rand() %9;
     time_on = rand() %61;
                                                           
     tx_buffer[1] = monument_id;
