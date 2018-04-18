@@ -35,11 +35,9 @@ using namespace events;
 uint8_t tx_buffer[LORAMAC_PHY_MAXPAYLOAD];
 uint8_t rx_buffer[LORAMAC_PHY_MAXPAYLOAD];
 
-// output lights
-DigitalOut light(D8);
-
 // motion class
-Motion motion (D4);
+Motion motion (D3);
+
 
 /*
  * Sets up an application dependent transmission timer in ms. Used only when Duty Cycling is off for testing
@@ -170,13 +168,13 @@ static void send_message()
 
     int motionstate = motion.read();
     if(motionstate == true){
-        tx_buffer[0] = 0xFF; 
+        tx_buffer[0] = 0xFF;
     }else{
         tx_buffer[0] = 0x00; 
     };
 
     srand(time(NULL));
-    monument_id = rand() %21;
+    monument_id = rand() %8;
     time_on = rand() %61;
                                                           
     tx_buffer[1] = monument_id;
